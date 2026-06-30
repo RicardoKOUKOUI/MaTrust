@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SatVault — Bitcoin Wallet pour l'Afrique de l'Ouest</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0a0a;
+      --bg-card:     #111111;
+      --bg-card2:    #161616;
+      --border:      #222222;
+      --border-glow: #f7931a33;
+      --orange:      #f7931a;
+      --orange-dim:  #c9741280;
+      --orange-text: #ffb347;
+      --white:       #f0f0f0;
+      --muted:       #888888;
+      --green:       #3ecf8e;
+      --blue:        #61dafb;
+      --purple:      #a78bfa;
+      --font:        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --mono:        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --radius:      12px;
+      --radius-sm:   8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ===== HEADER ===== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #f7931a, #e8720c);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 16px #f7931a44;
+    }
+
+    .logo-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-name span { color: var(--orange); }
+
+    .header-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--orange);
+      background: #f7931a15;
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      padding: 3px 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #f7931a0f 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-emoji {
+      font-size: 4.5rem;
+      display: block;
+      margin-bottom: 1.25rem;
+      filter: drop-shadow(0 0 24px #f7931a66);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 24px #f7931a55); }
+      50%       { filter: drop-shadow(0 0 40px #f7931a99); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      line-height: 1.1;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, #f7931a, #ffb347);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-tagline {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-tagline strong { color: var(--white); }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #f7931a, #e8720c);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px #f7931a33;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px #f7931a55;
+    }
+
+    .infra-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 12px;
+      background: #0d1f14;
+      border: 1px solid #3ecf8e44;
+      color: var(--green);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: 8px;
+    }
+
+    /* ===== STATS STRIP ===== */
+    .stats {
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover { border-color: var(--orange-dim); }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--orange);
+      letter-spacing: -0.03em;
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.blue  { color: var(--blue); }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ===== NAV TABS ===== */
+    .tabs-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 3rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--white); }
+
+    .tab-btn.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== SECTION HELPERS ===== */
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* ===== OVERVIEW ===== */
+    .pitch-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: var(--radius);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2.5rem;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #ccc;
+    }
+
+    .pitch-block strong { color: var(--white); }
+
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .problem-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--orange-dim);
+      box-shadow: 0 8px 24px rgba(247,147,26,0.06);
+    }
+
+    .problem-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+    .problem-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .problem-desc  { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+    .problem-arrow { color: var(--orange); font-weight: 700; }
+
+    /* ===== FEATURES ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--orange), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: #333;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: #f7931a12;
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc { font-size: 0.87rem; color: var(--muted); line-height: 1.6; }
+
+    .feature-tags {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #ffffff0c;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ===== TECH STACK ===== */
+    .stack-table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      background: var(--bg-card2);
+      color: var(--muted);
+      text-align: left;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #ffffff04; }
+
+    tbody td { padding: 0.875rem 1.25rem; }
+
+    .tech-cat {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .tech-name {
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .tech-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-orange { background: #f7931a18; color: var(--orange-text); }
+    .badge-blue   { background: #61dafb18; color: var(--blue); }
+    .badge-green  { background: #3ecf8e18; color: var(--green); }
+    .badge-purple { background: #a78bfa18; color: var(--purple); }
+    .badge-gray   { background: #ffffff0f; color: var(--muted); }
+
+    .cost-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--green);
+      background: #3ecf8e18;
+      border: 1px solid #3ecf8e33;
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+
+    /* ===== ARCHITECTURE ===== */
+    .arch-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .arch-header {
+      background: var(--bg-card2);
+      border-bottom: 1px solid var(--border);
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .arch-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .arch-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-left: auto;
+    }
+
+    .arch-content {
+      padding: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: #bbb;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    .arch-content .c-orange { color: var(--orange); }
+    .arch-content .c-green  { color: var(--green); }
+    .arch-content .c-blue   { color: var(--blue); }
+    .arch-content .c-purple { color: var(--purple); }
+    .arch-content .c-muted  { color: #555; }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .flow-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      transition: border-color 0.2s;
+    }
+
+    .flow-step:hover { border-color: #333; }
+
+    .flow-num {
+      min-width: 28px;
+      height: 28px;
+      background: var(--orange);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .flow-text strong { display: block; font-size: 0.87rem; margin-bottom: 3px; }
+    .flow-text span   { font-size: 0.8rem; color: var(--muted); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    .footer-logo {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+    .footer-hackathon {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #f7931a12, #f7931a06);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      color: var(--orange-text);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--orange); }
+
+    .footer-copy {
+      font-size: 0.75rem;
+      color: #444;
+      margin-top: 1.5rem;
+    }
+
+    /* ===== COUNTER ===== */
+    .counter-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .hero { padding: 3rem 1.25rem 2.5rem; }
+      .hero h1 { font-size: 2rem; }
+      .tabs-wrapper { padding: 0 1.25rem; }
+      .stats { padding: 0 1.25rem; }
+      .tab-btn { padding: 0.65rem 0.9rem; font-size: 0.82rem; }
+      .infra-badge { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">₿</div>
+      <span class="logo-name">Sat<span>Vault</span></span>
+    </a>
+    <span class="header-badge">Bitcoin Hackathon 2026</span>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <span class="hero-emoji">⚡</span>
+  <h1>Le wallet Bitcoin qui<br><span class="highlight">libère l'Afrique de l'Ouest</span></h1>
+  <p class="hero-tagline">
+    <strong>SatVault</strong> — Épargne programmée, paiements Lightning instantanés
+    et réception hors-ligne via eCash. Sans banque, sans frais, sans frontières.
+  </p>
+  <div>
+    <a href="#" class="hero-cta" onclick="switchTab('features'); return false;">
+      ⚡ Voir les fonctionnalités
+    </a>
+    <span class="infra-badge">
+      <span id="cost-counter">0</span>€ coût infra
+    </span>
+  </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-value">0€</div>
+    <div class="stat-label">Coût infrastructure</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value green">~1s</div>
+    <div class="stat-label">Délai de paiement</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value blue">4</div>
+    <div class="stat-label">Fonctionnalités clés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" style="color:var(--purple);">256</div>
+    <div class="stat-label">Bits chiffrement AES</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">∞</div>
+    <div class="stat-label">Objectifs d'épargne</div>
+  </div>
+</div>
+
+<!-- ===== TABS NAV ===== -->
+<div class="tabs-wrapper">
+  <nav class="tabs-nav" role="tablist">
+    <button class="tab-btn active" onclick="switchTab('overview')"   role="tab">Overview</button>
+    <button class="tab-btn"        onclick="switchTab('features')"   role="tab">Fonctionnalités</button>
+    <button class="tab-btn"        onclick="switchTab('stack')"      role="tab">Tech Stack</button>
+    <button class="tab-btn"        onclick="switchTab('arch')"       role="tab">Architecture</button>
+  </nav>
+
+  <!-- ===== PANEL : OVERVIEW ===== -->
+  <div id="panel-overview" class="tab-panel active">
+    <h2 class="section-title">À propos de SatVault</h2>
+    <p class="section-sub">Un projet né d'un hackathon, pensé pour un vrai problème.</p>
+
+    <div class="pitch-block">
+      En Afrique de l'Ouest, <strong>des millions de personnes</strong> n'ont pas accès à
+      un compte bancaire fiable. Les transferts d'argent coûtent cher, prennent du temps,
+      et l'épargne formelle reste hors de portée.<br><br>
+      <strong>SatVault</strong> utilise le réseau Bitcoin Lightning pour offrir des
+      paiements quasi-instantanés à coût quasi-nul, une épargne programmée et verrouillée
+      dans le temps, et la possibilité de recevoir des fonds même <strong>sans connexion
+      internet</strong> — grâce aux vouchers eCash Cashu.
+    </div>
+
+    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem;">
+      Problèmes résolus
+    </h3>
+    <div class="problems-grid">
+      <div class="problem-card">
+        <div class="problem-icon">🏦</div>
+        <div class="problem-title">Pas de banque ? <span class="problem-arrow">→</span> Pas de problème</div>
+        <div class="problem-desc">SatVault est un wallet Bitcoin auto-custodial. Aucun compte bancaire requis, aucun KYC contraignant.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">💸</div>
+        <div class="problem-title">Frais de transfert élevés <span class="problem-arrow">→</span> Sats instantanés</div>
+        <div class="problem-desc">Les paiements Lightning coûtent des fractions de centime, en moins d'une seconde, partout dans le monde.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">📵</div>
+        <div class="problem-title">Pas de réseau <span class="problem-arrow">→</span> Vouchers eCash</div>
+        <div class="problem-desc">Générez des tokens Cashu hors-ligne. Envoyez-les par SMS ou messagerie. Racheter quand le réseau revient.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">🎯</div>
+        <div class="problem-title">Dépenses impulsives <span class="problem-arrow">→</span> Épargne verrouillée</div>
+        <div class="problem-desc">Chaque objectif crée un wallet isolé, bloqué jusqu'à la date choisie. Vos sats sont inaccessibles avant l'échéance.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANEL : FEATURES ===== -->
+  <div id="panel-features" class="tab-panel">
+    <h2 class="section-title">Fonctionnalités clés</h2>
+    <p class="section-sub">Quatre piliers pour une liberté financière réelle.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Wallet Lightning Principal</div>
+        <div class="feature-desc">
+          Envoyez et recevez des sats instantanément. Support complet du protocole
+          bolt11 et LNURL-pay. Solde affiché en sats, BTC et en devise locale (XOF / CFA).
+          Notifications en temps réel via Supabase Realtime.
+        </div>
+        <div class="feature-tags">
+          <span class="tag">bolt11</span>
+          <span class="tag">LNURL</span>
+          <span class="tag">QR Code</span>
+          <span class="tag">Realtime</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏦</div>
+        <div class="feature-title">Épargne Programmée</div>
+        <div class="feature-desc">
+          Créez des objectifs d'épargne avec un montant cible et une date de déblocage.
+          Chaque objectif possède son propre wallet LNbits isolé. Les fonds sont
+          verrouillés côté serveur — impossible de retirer avant l'échéance.
+        </div>
+        <div class="feature-tags">
+          <span class="tag">LNbits</span>
+          <span class="tag">Time-lock</span>
+          <span class="tag">Wallet isolé</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📵</div>
+        <div class="feature-title">Réception Hors-ligne</div>
+        <div class="feature-desc">
+          Générez des vouchers eCash Cashu depuis votre wallet Lightning.
+          Partagez-les par n'importe quel canal (SMS, WhatsApp, papier).
+          Le destinataire les rachète quand il retrouve du réseau.
+        </div>
+        <div class="feature-tags">
+          <span class="tag">Cashu</span>
+          <span class="tag">eCash</span>
+          <span class="tag">Offline</span>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <div class="feature-title">Sécurité Zero-Trust</div>
+        <div class="feature-desc">
+          Aucune clé secrète dans le client mobile. Les Admin Keys LNbits sont
+          chiffrées AES-256 dans Supabase Vault. Toutes les opérations sensibles
+          passent par des Edge Functions Supabase avec authentification JWT.
+        </div>
+        <div class="feature-tags">
+          <span class="tag">AES-256</span>
+          <span class="tag">Supabase Vault</span>
+          <span class="tag">JWT</span>
+          <span class="tag">Edge Functions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANEL : TECH STACK ===== -->
+  <div id="panel-stack" class="tab-panel">
+    <h2 class="section-title">Stack technique</h2>
+    <p class="section-sub">100% open-source. 100% gratuit. Zéro compromis sur la qualité.</p>
+
+    <div class="stack-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Catégorie</th>
+            <th>Technologie</th>
+            <th>Version</th>
+            <th>Rôle</th>
+            <th>Coût</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tech-cat">Framework</span></td>
+            <td><span class="tech-name">React Native</span></td>
+            <td><span class="tech-badge badge-blue">0.76</span></td>
+            <td>App mobile cross-platform</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Runtime</span></td>
+            <td><span class="tech-name">Expo SDK</span></td>
+            <td><span class="tech-badge badge-blue">52</span></td>
+            <td>Outils build + OTA updates</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Langage</span></td>
+            <td><span class="tech-name">TypeScript</span></td>
+            <td><span class="tech-badge badge-purple">5.x</span></td>
+            <td>Typage statique</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Navigation</span></td>
+            <td><span class="tech-name">Expo Router</span></td>
+            <td><span class="tech-badge badge-blue">v4</span></td>
+            <td>File-based routing</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">UI / Styles</span></td>
+            <td><span class="tech-name">NativeWind</span></td>
+            <td><span class="tech-badge badge-blue">v4</span></td>
+            <td>Tailwind pour React Native</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">UI / Composants</span></td>
+            <td><span class="tech-name">React Native Paper</span></td>
+            <td><span class="tech-badge badge-purple">v5</span></td>
+            <td>Composants Material Design</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">État global</span></td>
+            <td><span class="tech-name">Zustand</span></td>
+            <td><span class="tech-badge badge-gray">latest</span></td>
+            <td>State management léger</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Data fetching</span></td>
+            <td><span class="tech-name">TanStack Query</span></td>
+            <td><span class="tech-badge badge-orange">v5</span></td>
+            <td>Cache & sync serveur</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Backend</span></td>
+            <td><span class="tech-name">Supabase</span></td>
+            <td><span class="tech-badge badge-green">Free tier</span></td>
+            <td>Auth, DB, Edge Functions, Vault</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Lightning</span></td>
+            <td><span class="tech-name">LNbits</span></td>
+            <td><span class="tech-badge badge-orange">Public</span></td>
+            <td>Wallets Lightning isolés</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">Sandbox</span></td>
+            <td><span class="tech-name">Flash Sandbox</span></td>
+            <td><span class="tech-badge badge-orange">API</span></td>
+            <td>Tests de paiements</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+          <tr>
+            <td><span class="tech-cat">eCash</span></td>
+            <td><span class="tech-name">Cashu</span></td>
+            <td><span class="tech-badge badge-purple">Protocol</span></td>
+            <td>Vouchers hors-ligne</td>
+            <td><span class="cost-badge">✓ Gratuit</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="background:var(--bg-card); border:1px solid #3ecf8e33; border-radius:var(--radius); padding:1.25rem 1.5rem; display:flex; align-items:center; gap:12px;">
+      <span style="font-size:1.5rem;">🎯</span>
+      <div>
+        <strong style="color:var(--green);">Coût infrastructure total : 0€</strong>
+        <p style="font-size:0.85rem; color:var(--muted); margin-top:2px;">
+          Supabase free tier (500MB DB, 500K Edge Function calls/mois) + LNbits public + Expo gratuit.
+          Architecture pensée pour scaler sans coût jusqu'au product-market fit.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANEL : ARCHITECTURE ===== -->
+  <div id="panel-arch" class="tab-panel">
+    <h2 class="section-title">Architecture</h2>
+    <p class="section-sub">Pas de backend custom. Tout passe par Supabase Edge Functions.</p>
+
+    <div class="arch-block">
+      <div class="arch-header">
+        <div class="arch-dot" style="background:#ff5f57;"></div>
+        <div class="arch-dot" style="background:#ffbd2e;"></div>
+        <div class="arch-dot" style="background:#28ca41;"></div>
+        <span class="arch-label">architecture.txt</span>
+      </div>
+      <div class="arch-content"><span class="c-muted">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="c-muted">│</span>                   <span class="c-orange">React Native App</span>                          <span class="c-muted">│</span>
+<span class="c-muted">│</span>              <span class="c-muted">(Expo SDK 52 + TypeScript)</span>                     <span class="c-muted">│</span>
+<span class="c-muted">│</span>                                                             <span class="c-muted">│</span>
+<span class="c-muted">│</span>  <span class="c-muted">┌──────────┐</span>  <span class="c-muted">┌───────────┐</span>  <span class="c-muted">┌──────────────────────┐</span>  <span class="c-muted">│</span>
+<span class="c-muted">│</span>  <span class="c-muted">│</span>  <span class="c-orange">Wallet</span>  <span class="c-muted">│</span>  <span class="c-muted">│</span>  <span class="c-orange">Épargne</span>   <span class="c-muted">│</span>  <span class="c-muted">│</span>   <span class="c-purple">Cashu (eCash)</span>       <span class="c-muted">│</span>  <span class="c-muted">│</span>
+<span class="c-muted">│</span>  <span class="c-muted">│</span> <span class="c-blue">Lightning</span><span class="c-muted">│</span>  <span class="c-muted">│</span> <span class="c-orange">Programmée</span> <span class="c-muted">│</span>  <span class="c-muted">│</span>   <span class="c-purple">Hors-ligne</span>          <span class="c-muted">│</span>  <span class="c-muted">│</span>
+<span class="c-muted">│</span>  <span class="c-muted">└────┬─────┘</span>  <span class="c-muted">└─────┬─────┘</span>  <span class="c-muted">└──────────┬───────────┘</span>  <span class="c-muted">│</span>
+<span class="c-muted">└───────┼──────────────────┼──────────────────┼─────────────────┘</span>
+        <span class="c-muted">│</span>                  <span class="c-muted">│</span>                  <span class="c-muted">│</span>
+        <span class="c-muted">▼</span>                  <span class="c-muted">▼</span>                  <span class="c-muted">▼</span>
+<span class="c-muted">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="c-muted">│</span>              <span class="c-green">Supabase Edge Functions</span>                         <span class="c-muted">│</span>
+<span class="c-muted">│</span>     <span class="c-muted">(Auth · PostgreSQL · Realtime · Vault AES-256)</span>         <span class="c-muted">│</span>
+<span class="c-muted">└──────────────────────────┬───────────────────────────────────┘</span>
+                           <span class="c-muted">│</span>
+                   <span class="c-muted">┌───────┴────────┐</span>
+                   <span class="c-muted">▼</span>                <span class="c-muted">▼</span>
+           <span class="c-muted">┌─────────────┐</span>  <span class="c-muted">┌──────────────┐</span>
+           <span class="c-muted">│</span>   <span class="c-orange">LNbits</span>    <span class="c-muted">│</span>  <span class="c-muted">│</span>   <span class="c-blue">Flash</span>     <span class="c-muted">│</span>
+           <span class="c-muted">│</span> <span class="c-muted">legend.lnbits</span><span class="c-muted">│</span>  <span class="c-muted">│</span>  <span class="c-muted">Sandbox</span>   <span class="c-muted">│</span>
+           <span class="c-muted">│</span>   <span class="c-muted">.com</span>      <span class="c-muted">│</span>  <span class="c-muted">│</span>    <span class="c-muted">API</span>    <span class="c-muted">│</span>
+           <span class="c-muted">└─────────────┘</span>  <span class="c-muted">└──────────────┘</span></div>
+    </div>
+
+    <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1.25rem; margin-top:2rem;">
+      Flux d'authentification et de paiement
+    </h3>
+    <div class="flow-grid">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-text">
+          <strong>Magic Link</strong>
+          <span>L'utilisateur reçoit un lien Supabase Auth par email. Aucun mot de passe stocké.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-text">
+          <strong>JWT Supabase</strong>
+          <span>Token JWT émis, stocké de manière sécurisée dans SecureStore Expo.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-text">
+          <strong>Edge Function appelée</strong>
+          <span>Le client envoie le JWT + paramètres. La fonction vérifie l'identité.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-text">
+          <strong>Vault déchiffré</strong>
+          <span>La fonction récupère la clé LNbits AES-256 depuis Supabase Vault.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-text">
+          <strong>LNbits API appelée</strong>
+          <span>La transaction Lightning est exécutée. La clé ne quitte jamais le serveur.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-text">
+          <strong>Realtime push</strong>
+          <span>Supabase Realtime notifie le client du succès. Solde mis à jour.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.tabs-wrapper -->
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">₿</div>
+  <div class="footer-title">SatVault</div>
+  <div class="footer-sub">Bitcoin Wallet pour l'Afrique de l'Ouest</div>
+  <div>
+    <div class="footer-hackathon">
+      🏆 &nbsp;Projet soumis au <strong>Bitcoin Hackathon 2026</strong> &nbsp;·&nbsp; Équipe : AHIFFON Jephte
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="README.md">Documentation</a>
+    <a href="PROGRESS.md">Progression</a>
+    <a href="https://legend.lnbits.com" target="_blank" rel="noopener">LNbits</a>
+    <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a>
+    <a href="https://expo.dev" target="_blank" rel="noopener">Expo</a>
+  </div>
+  <div class="footer-copy">MIT License © 2026 SatVault — Open source, construisez dessus.</div>
+</footer>
+
+<script>
+  /* ===== TAB SWITCHER ===== */
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      const targets = ['overview', 'features', 'stack', 'arch'];
+      btn.classList.toggle('active', targets[i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === 'panel-' + name);
+    });
+    document.querySelector('.tabs-wrapper').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ===== ANIMATED COUNTER ===== */
+  function animateCounter(el, target, duration, suffix) {
+    const start = performance.now();
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(eased * target) + (suffix || '');
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  /* Run counter on load */
+  window.addEventListener('DOMContentLoaded', () => {
+    const costEl = document.getElementById('cost-counter');
+    if (costEl) {
+      /* Count up then back to 0 for visual effect */
+      setTimeout(() => {
+        animateCounter(costEl, 9999, 800);
+        setTimeout(() => animateCounter(costEl, 0, 600), 900);
+      }, 600);
+    }
+  });
+
+  /* ===== SMOOTH FADE-IN on scroll ===== */
+  if ('IntersectionObserver' in window) {
+    const style = document.createElement('style');
+    style.textContent = `
+      .stat-card, .problem-card, .feature-card, .flow-step {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+      .stat-card.visible, .problem-card.visible,
+      .feature-card.visible, .flow-step.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    `;
+    document.head.appendChild(style);
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 60);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.stat-card, .problem-card, .feature-card, .flow-step')
+      .forEach(el => obs.observe(el));
+  }
+</script>
+</body>
+</html>
